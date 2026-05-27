@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PixSnap Pro — Smart Photo Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#07090E;--surface:#0D1017;--card:#131720;--border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.13);
+  --accent:#00E5FF;--accent2:#FF3D6B;--accent3:#7B61FF;--green:#00FF88;--amber:#FFB800;
+  --text:#E8EDF5;--muted:#6B7A99;--dim:#2A3548;
+  --ff:'DM Sans',sans-serif;--fm:'Bebas Neue',sans-serif;--fmono:'JetBrains Mono',monospace;
+  --rad:12px;--rad-sm:8px;
+  --sidebar-w:220px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--ff);display:flex;flex-direction:column}
+
+body::after{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,0.015) 2px,rgba(0,229,255,0.015) 4px);
+  pointer-events:none;z-index:0
+}
+
+/* ══════════════ MOBILE NAV ══════════════ */
+.nav{
+  position:relative;z-index:10;
+  height:56px;min-height:56px;
+  background:rgba(7,9,14,0.95);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+  backdrop-filter:blur(20px)
+}
+.nav-logo{font-family:var(--fm);font-size:24px;letter-spacing:2px;color:var(--accent)}
+.nav-logo span{color:var(--accent2)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.pill{
+  font-family:var(--fmono);font-size:10px;letter-spacing:0.5px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(0,229,255,0.08);color:var(--accent);
+  border:1px solid rgba(0,229,255,0.2)
+}
+.pill.red{background:rgba(255,61,107,0.08);color:var(--accent2);border-color:rgba(255,61,107,0.2)}
+
+/* ══════════════ MOBILE BOTTOM TABS ══════════════ */
+.tabs{
+  position:relative;z-index:10;
+  height:60px;min-height:60px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  order:99
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;transition:all 0.2s;
+  color:var(--muted);font-size:10px;font-weight:500;letter-spacing:0.3px;
+  position:relative
+}
+.tab svg{width:22px;height:22px;stroke-width:1.5}
+.tab.active{color:var(--accent)}
+.tab.active::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+  background:var(--accent);border-radius:0 0 3px 3px
+}
+.tab-badge{
+  position:absolute;top:6px;right:calc(50% - 18px);
+  background:var(--accent2);color:#fff;
+  font-size:9px;font-weight:600;font-family:var(--fmono);
+  min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px
+}
+
+/* ══════════════ DESKTOP LAYOUT ══════════════ */
+.desktop-layout{
+  display:none;
+  flex:1;overflow:hidden;position:relative;z-index:1
+}
+.desktop-sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:rgba(13,16,23,0.98);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  height:100%;
+}
+.sidebar-logo{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--fm);font-size:22px;letter-spacing:2px;color:var(--accent)
+}
+.sidebar-logo span{color:var(--accent2)}
+.sidebar-logo .pill{display:block;width:fit-content;margin-top:6px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.sidebar-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;cursor:pointer;
+  color:var(--muted);font-size:13px;font-weight:500;
+  transition:all 0.15s;position:relative;
+  border-left:2px solid transparent;margin-bottom:2px
+}
+.sidebar-item svg{width:18px;height:18px;stroke-width:1.5;flex-shrink:0}
+.sidebar-item:hover{background:rgba(255,255,255,0.03);color:var(--text)}
+.sidebar-item.active{
+  color:var(--accent);
+  background:rgba(0,229,255,0.06);
+  border-left-color:var(--accent)
+}
+.sidebar-item .s-badge{
+  margin-left:auto;background:var(--accent2);color:#fff;
+  font-size:9px;font-weight:600;font-family:var(--fmono);
+  min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:0 4px
+}
+.sidebar-footer{
+  padding:14px 16px;border-top:1px solid var(--border);
+  font-size:11px;color:var(--dim);font-family:var(--fmono)
+}
+.desktop-main{
+  flex:1;overflow:hidden;display:flex;flex-direction:column
+}
+.desktop-topbar{
+  height:52px;min-height:52px;
+  background:rgba(7,9,14,0.95);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:16px;
+  backdrop-filter:blur(20px)
+}
+.desktop-topbar .page-title{
+  font-family:var(--fm);font-size:20px;letter-spacing:2px;color:var(--accent)
+}
+.desktop-topbar .page-title span{color:var(--text)}
+.desktop-content{
+  flex:1;overflow-y:auto;padding:24px;
+}
+.desktop-content::-webkit-scrollbar{width:4px}
+.desktop-content::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* Desktop 2-column layout for upload page */
+.desktop-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.desktop-3col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* ══════════════ MOBILE PAGES ══════════════ */
+.pages{flex:1;overflow:hidden;position:relative;z-index:1}
+.page{
+  position:absolute;inset:0;overflow-y:auto;
+  padding:16px;
+  display:none;
+  -webkit-overflow-scrolling:touch
+}
+.page.active{display:block;animation:fadeUp 0.25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* ══════════════ DESKTOP PAGE PANELS ══════════════ */
+.d-panel{display:none}
+.d-panel.active{display:block;animation:fadeUp 0.2s ease}
+
+/* ══════════════ SHARED COMPONENTS ══════════════ */
+.sh{font-family:var(--fm);font-size:28px;letter-spacing:2px;margin-bottom:4px;line-height:1}
+.sh span{color:var(--accent)}
+.sub{font-size:12px;color:var(--muted);font-weight:300;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:12px}
+.card:last-child{margin-bottom:0}
+.card-label{
+  font-family:var(--fmono);font-size:10px;color:var(--muted);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:6px
+}
+.card-label::before{content:'';width:2px;height:10px;background:var(--accent);border-radius:1px;flex-shrink:0}
+.upload-zone{
+  border:2px dashed var(--border-hi);border-radius:var(--rad);
+  padding:32px 16px;text-align:center;cursor:pointer;
+  transition:all 0.2s;position:relative;overflow:hidden
+}
+.upload-zone:active{background:rgba(0,229,255,0.05);border-color:var(--accent)}
+.upload-zone:hover{background:rgba(0,229,255,0.03);border-color:rgba(0,229,255,0.3)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px
+}
+.upload-icon svg{stroke:var(--accent);width:24px;height:24px;stroke-width:1.5}
+.upload-title{font-size:15px;font-weight:500;margin-bottom:4px}
+.upload-hint{font-size:12px;color:var(--muted)}
+.btn{
+  padding:11px 20px;border-radius:var(--rad-sm);border:none;
+  cursor:pointer;font-family:var(--ff);font-size:14px;font-weight:500;
+  display:flex;align-items:center;gap:8px;justify-content:center;
+  transition:all 0.15s;width:100%
+}
+.btn-primary{background:var(--accent);color:#000;font-weight:600}
+.btn-primary:active,.btn-primary:hover{transform:scale(0.98);background:#33EAFF}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border-hi)}
+.btn-secondary:hover{background:rgba(255,255,255,0.05)}
+.btn-secondary:active{background:rgba(255,255,255,0.08)}
+.btn-danger{background:rgba(255,61,107,0.12);color:var(--accent2);border:1px solid rgba(255,61,107,0.25)}
+.btn-danger:hover{background:rgba(255,61,107,0.18)}
+.btn-danger:active{background:rgba(255,61,107,0.2)}
+.btn-sm{padding:8px 14px;font-size:13px;width:auto}
+.btn svg{width:16px;height:16px;stroke-width:2;flex-shrink:0}
+.btn:disabled{opacity:0.4;pointer-events:none}
+.input{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--rad-sm);padding:10px 14px;
+  color:var(--text);font-family:var(--ff);font-size:14px;
+  outline:none;width:100%;transition:border-color 0.2s
+}
+.input:focus{border-color:var(--accent)}
+.input::placeholder{color:var(--dim)}
+select.input option{background:var(--card)}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+.photo-thumb{
+  aspect-ratio:1;border-radius:8px;overflow:hidden;
+  border:1px solid var(--border);cursor:pointer;position:relative;
+  background:var(--surface)
+}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-thumb .badge{
+  position:absolute;bottom:4px;left:4px;right:4px;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  border-radius:4px;padding:2px 5px;
+  font-size:9px;font-family:var(--fmono);color:var(--accent);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.photo-thumb .unassigned{color:var(--muted)}
+.ai-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:var(--rad-sm);margin-bottom:12px;
+  background:rgba(123,97,255,0.08);border:1px solid rgba(123,97,255,0.2)
+}
+.ai-bar.processing{background:rgba(255,184,0,0.06);border-color:rgba(255,184,0,0.2)}
+.ai-bar.success{background:rgba(0,255,136,0.06);border-color:rgba(0,255,136,0.2)}
+.ai-bar.error{background:rgba(255,61,107,0.06);border-color:rgba(255,61,107,0.2)}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--accent3);flex-shrink:0}
+.ai-bar.processing .ai-dot{background:var(--amber);animation:pulse 0.7s infinite}
+.ai-bar.success .ai-dot{background:var(--green)}
+.ai-bar.error .ai-dot{background:var(--accent2)}
+.ai-text{font-size:12px;color:var(--muted);flex:1;line-height:1.4}
+.ai-text strong{color:var(--text);font-weight:500}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.person-card{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:var(--rad-sm);
+  background:var(--surface);border:1px solid var(--border);
+  margin-bottom:8px;cursor:pointer;transition:border-color 0.15s
+}
+.person-card:hover{border-color:rgba(0,229,255,0.3)}
+.person-card:active{border-color:var(--accent)}
+.person-avatar{width:44px;height:44px;border-radius:50%;border:2px solid var(--border-hi);object-fit:cover;flex-shrink:0}
+.person-info{flex:1;min-width:0}
+.person-name{font-weight:500;font-size:14px;margin-bottom:2px}
+.person-meta{font-size:11px;color:var(--muted);font-family:var(--fmono)}
+.tag{display:inline-flex;align-items:center;gap:3px;font-family:var(--fmono);font-size:9px;letter-spacing:0.5px;padding:3px 7px;border-radius:20px;text-transform:uppercase}
+.tag-cyan{background:rgba(0,229,255,0.1);color:var(--accent);border:1px solid rgba(0,229,255,0.2)}
+.tag-green{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.2)}
+.tag-red{background:rgba(255,61,107,0.1);color:var(--accent2);border:1px solid rgba(255,61,107,0.2)}
+.tag-purple{background:rgba(123,97,255,0.1);color:var(--accent3);border:1px solid rgba(123,97,255,0.2)}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rad-sm);padding:14px}
+.stat-val{font-family:var(--fm);font-size:36px;letter-spacing:1px;color:var(--accent);line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.cam-area{border-radius:var(--rad);overflow:hidden;background:#000;aspect-ratio:4/3;position:relative;border:1px solid var(--border)}
+#cam-video{width:100%;height:100%;object-fit:cover;display:block}
+.cam-corner{position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid;opacity:0.7}
+.cam-corner.tl{top:12px;left:12px;border-width:2px 0 0 2px}
+.cam-corner.tr{top:12px;right:12px;border-width:2px 2px 0 0}
+.cam-corner.bl{bottom:12px;left:12px;border-width:0 0 2px 2px}
+.cam-corner.br{bottom:12px;right:12px;border-width:0 2px 2px 0}
+.cam-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite;opacity:0}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.cam-scan.active{opacity:0.5}
+.cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--dim)}
+.cam-ph svg{width:40px;height:40px;stroke:currentColor;stroke-width:1.2;opacity:0.4}
+.cam-status{position:absolute;bottom:10px;left:12px;font-family:var(--fmono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.cam-dot{width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.cam-dot.live{background:var(--green);animation:pulse 1.5s infinite}
+.progress-bar{height:3px;background:var(--surface);border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;width:0}
+.empty{text-align:center;padding:40px 16px;color:var(--dim)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:0.4}
+.empty-title{font-size:15px;color:var(--muted);margin-bottom:6px}
+.empty-hint{font-size:12px}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.conf-chip{display:inline-flex;align-items:center;gap:4px;font-family:var(--fmono);font-size:10px;padding:3px 8px;border-radius:20px}
+.conf-high{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.25)}
+.conf-mid{background:rgba(255,184,0,0.1);color:var(--amber);border:1px solid rgba(255,184,0,0.25)}
+.conf-low{background:rgba(255,61,107,0.1);color:var(--accent2);border:1px solid rgba(255,61,107,0.2)}
+.result-card{background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--rad);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.result-photo{width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+.result-info{flex:1;min-width:0}
+.result-name{font-size:14px;font-weight:500;margin-bottom:4px}
+.result-meta{font-size:11px;color:var(--muted);font-family:var(--fmono)}
+.preview-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:10px}
+.preview-strip::-webkit-scrollbar{height:2px}
+.preview-strip::-webkit-scrollbar-thumb{background:var(--dim)}
+.preview-chip{flex-shrink:0;width:52px;height:52px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--border)}
+.preview-chip img{width:100%;height:100%;object-fit:cover}
+
+/* ══════════════ MODAL ══════════════ */
+.modal-wrap{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);z-index:100;
+  display:none;align-items:flex-end;justify-content:center
+}
+.modal-wrap.open{display:flex;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--card);border:1px solid var(--border-hi);
+  border-radius:24px 24px 0 0;padding:24px 20px 32px;
+  width:100%;max-width:480px;max-height:88vh;overflow-y:auto
+}
+.modal-handle{width:36px;height:4px;background:var(--dim);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-family:var(--fm);font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px;background:var(--surface);border-radius:var(--rad);border:1px solid var(--border);margin-bottom:16px}
+#qr-code canvas,#qr-code img{border-radius:6px;background:#fff;padding:8px;display:block}
+.assign-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:220px;overflow-y:auto;margin-bottom:16px}
+.assign-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:all 0.15s}
+.assign-grid img.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+
+/* ══════════════ FULLSCREEN ══════════════ */
+.fs-viewer{
+  position:fixed;inset:0;background:rgba(0,0,0,0.97);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px
+}
+.fs-viewer.open{display:flex}
+.fs-viewer img{max-width:94vw;max-height:78vh;object-fit:contain;border-radius:8px}
+.fs-actions{display:flex;gap:10px}
+.fs-btn{
+  padding:10px 18px;border-radius:var(--rad-sm);border:none;cursor:pointer;
+  font-family:var(--ff);font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:6px;transition:all 0.15s
+}
+
+/* ══════════════ TOAST ══════════════ */
+.toast{
+  position:fixed;bottom:72px;left:16px;right:16px;
+  background:var(--card);border:1px solid var(--border-hi);border-radius:var(--rad);
+  padding:12px 16px;font-size:13px;z-index:300;
+  display:flex;align-items:center;gap:10px;
+  transform:translateY(120%);opacity:0;transition:all 0.3s
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--accent2)}
+.toast.info{border-left:3px solid var(--accent)}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:250}
+.flash.go{animation:flashGo 0.25s ease}
+@keyframes flashGo{0%{opacity:0}20%{opacity:0.7}100%{opacity:0}}
+
+/* ══════════════ DESKTOP OVERRIDES ══════════════ */
+@media (min-width:768px){
+  body{flex-direction:row;overflow:hidden}
+  
+  /* Hide mobile nav and tabs */
+  .nav{display:none}
+  .tabs{display:none}
+  .pages{display:none}
+  
+  /* Show desktop layout */
+  .desktop-layout{
+    display:flex;flex-direction:row;
+    flex:1;height:100vh;width:100vw
+  }
+  
+  /* Toast adjusts for no bottom tabs */
+  .toast{bottom:24px;left:240px;right:24px;max-width:420px}
+  
+  /* Desktop modal centered */
+  .modal-wrap{align-items:center}
+  .modal{border-radius:16px;max-height:80vh}
+  .modal-handle{display:none}
+}
+
+/* ══════════════ DESKTOP STATS EXPANDED ══════════════ */
+.d-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.d-stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--rad-sm);padding:16px}
+.d-stat-box .stat-val{font-size:42px}
+
+/* Desktop photo grid bigger */
+.d-photo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:0}
+
+/* Desktop people grid */
+.d-people-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Desktop upload columns */
+.d-upload-left,.d-upload-right{display:flex;flex-direction:column;gap:12px}
+
+/* Scrollable queue desktop */
+.d-queue-scroll{max-height:300px;overflow-y:auto}
+.d-queue-scroll::-webkit-scrollbar{width:3px}
+.d-queue-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="flash" id="flash"></div>
+
+<!-- ══════════════ MOBILE LAYOUT ══════════════ -->
+<nav class="nav">
+  <div class="nav-logo">PIXSNAP<span>PRO</span></div>
+  <div class="nav-right">
+    <div class="pill" id="nav-counter">0 PHOTOS</div>
+  </div>
+</nav>
+
+<div class="pages">
+  <!-- UPLOAD PAGE -->
+  <div class="page active" id="page-upload">
+    <div class="sh">SMART <span>UPLOAD</span></div>
+    <div class="sub">Gallery se photos upload karo — AI khud detect karega</div>
+    <div class="ai-bar" id="ai-bar">
+      <div class="ai-dot"></div>
+      <div class="ai-text" id="ai-text"><strong>AI Ready</strong> — Photos upload karo, automatic detection shuru hogi</div>
+    </div>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" accept="image/*" multiple id="file-input" onchange="handleFileUpload(this)">
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="upload-title">Gallery se Photos Upload Karo</div>
+      <div class="upload-hint">Multiple photos ek saath select kar sakte hain • AI auto-detect karega</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-size:11px;color:var(--dim)">YA</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <button class="btn btn-secondary" onclick="switchPage('camera')" style="margin-bottom:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4"/></svg>
+      Camera se Live Capture
+    </button>
+    <div id="processing-queue"></div>
+    <div id="recent-section" style="display:none">
+      <div class="card-label" style="margin-top:8px">Recent Captures</div>
+      <div class="photo-grid" id="recent-grid"></div>
+    </div>
+  </div>
+
+  <!-- CAMERA PAGE -->
+  <div class="page" id="page-camera">
+    <div class="sh">LIVE <span>CAPTURE</span></div>
+    <div class="sub">Camera se seedha photo lo</div>
+    <div class="cam-area" id="cam-area">
+      <video id="cam-video" autoplay muted playsinline style="display:none"></video>
+      <div class="cam-corner tl"></div><div class="cam-corner tr"></div>
+      <div class="cam-corner bl"></div><div class="cam-corner br"></div>
+      <div class="cam-scan" id="cam-scan"></div>
+      <div class="cam-ph" id="cam-ph">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <div style="font-size:13px">Camera band hai</div>
+      </div>
+      <div class="cam-status" id="cam-status">
+        <div class="cam-dot" id="cam-dot"></div>
+        <span id="cam-status-text" style="font-size:10px">Offline</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;margin-bottom:12px">
+      <button class="btn btn-secondary" id="cam-start-btn" onclick="startCamera()">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+        Camera Shuru Karo
+      </button>
+      <button class="btn btn-danger btn-sm" id="cam-stop-btn" onclick="stopCamera()" style="display:none;width:auto">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Band
+      </button>
+    </div>
+    <button class="btn btn-primary" id="cam-capture-btn" onclick="captureFromCamera()" disabled style="margin-bottom:12px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+      Photo Lo (Space)
+    </button>
+    <div class="card">
+      <div class="card-label">Photo Kis Ko Assign Karo?</div>
+      <div class="form-row">
+        <select class="input" id="cam-assign-select">
+          <option value="">— AI Auto Detect —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEOPLE PAGE -->
+  <div class="page" id="page-people">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div class="sh">PEOPLE <span>& QR</span></div>
+      <button class="btn btn-primary btn-sm" onclick="openNewPersonModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add
+      </button>
+    </div>
+    <div class="sub">Har person ka QR code — scan karo apni photos dekhne ke liye</div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="stat-people">0</div><div class="stat-lbl">Registered</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-photos">0</div><div class="stat-lbl">Total Photos</div></div>
+    </div>
+    <div id="people-list">
+      <div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Koi registered nahi hai abhi</div><div class="empty-hint">Upar "Add" button dabao</div></div>
+    </div>
+  </div>
+
+  <!-- GALLERY PAGE -->
+  <div class="page" id="page-gallery">
+    <div class="sh">ALL <span>PHOTOS</span></div>
+    <div class="sub">Saari captured photos</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <select class="input" id="gallery-filter" onchange="renderGallery()" style="flex:1">
+        <option value="all">Sab Photos</option>
+        <option value="unassigned">Unassigned</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="exportAllPhotos()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div id="gallery-container"><div class="empty"><div class="empty-icon">📷</div><div class="empty-title">Koi photo nahi abhi</div></div></div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="page-settings">
+    <div class="sh">SETTINGS</div>
+    <div class="sub">App configure karo</div>
+    <div class="card">
+      <div class="card-label">Event Info</div>
+      <div class="form-row"><label>Event / Studio Name</label><input class="input" id="s-event" placeholder="jaise: Shaadi 2025" oninput="saveSettings()"></div>
+      <div class="form-row"><label>Photographer Name</label><input class="input" id="s-photographer" placeholder="Aapka naam" oninput="saveSettings()"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">AI Detection</div>
+      <div class="form-row"><label>Auto Detection Mode</label>
+        <select class="input" id="s-detect" onchange="saveSettings()">
+          <option value="auto">Auto — Sab photos scan karo</option>
+          <option value="manual">Manual — Sirf jab bolun tab</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Data Management</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-secondary" onclick="exportData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Data Export (JSON)
+        </button>
+        <button class="btn btn-danger" onclick="clearData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sab Data Delete Karo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-upload" onclick="switchPage('upload')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Upload
+  </div>
+  <div class="tab" id="tab-camera" onclick="switchPage('camera')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4"/></svg>
+    Camera
+  </div>
+  <div class="tab" id="tab-people" onclick="switchPage('people')">
+    <div class="tab-badge" id="people-badge" style="display:none">0</div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    People
+  </div>
+  <div class="tab" id="tab-gallery" onclick="switchPage('gallery')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Gallery
+  </div>
+  <div class="tab" id="tab-settings" onclick="switchPage('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Settings
+  </div>
+</div>
+
+<!-- ══════════════ DESKTOP LAYOUT ══════════════ -->
+<div class="desktop-layout">
+  <!-- Sidebar -->
+  <div class="desktop-sidebar">
+    <div class="sidebar-logo">
+      PIXSNAP<span>PRO</span>
+      <div class="pill" id="d-nav-counter" style="margin-top:8px">0 PHOTOS</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-item active" id="d-tab-upload" onclick="dSwitchPage('upload')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Upload
+      </div>
+      <div class="sidebar-item" id="d-tab-camera" onclick="dSwitchPage('camera')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4"/></svg>
+        Camera
+      </div>
+      <div class="sidebar-item" id="d-tab-people" onclick="dSwitchPage('people')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        People & QR
+        <span class="s-badge" id="d-people-badge" style="display:none">0</span>
+      </div>
+      <div class="sidebar-item" id="d-tab-gallery" onclick="dSwitchPage('gallery')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Gallery
+      </div>
+      <div class="sidebar-item" id="d-tab-settings" onclick="dSwitchPage('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+  PIXSNAP PRO v2.0 <br>
+  <span style="font-size:12px; opacity:0.7;">by Anshul Raj Verma</span>
+</div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="desktop-main">
+    <!-- Topbar -->
+    <div class="desktop-topbar">
+      <div class="page-title" id="d-page-title">SMART <span>UPLOAD</span></div>
+      <div style="margin-left:auto;display:flex;gap:8px" id="d-topbar-actions"></div>
+    </div>
+
+    <!-- Desktop content panels -->
+    <div class="desktop-content">
+
+      <!-- UPLOAD PANEL -->
+      <div class="d-panel active" id="d-panel-upload">
+        <div class="ai-bar" id="d-ai-bar">
+          <div class="ai-dot"></div>
+          <div class="ai-text" id="d-ai-text"><strong>AI Ready</strong> — Photos upload karo, automatic detection shuru hogi</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+          <div>
+            <div class="card-label">Upload Zone</div>
+            <div class="upload-zone" id="d-upload-zone">
+              <input type="file" accept="image/*" multiple id="d-file-input" onchange="handleFileUpload(this)">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="upload-title">Photos Upload Karo</div>
+              <div class="upload-hint">Drag & drop ya click karo • Multiple photos OK</div>
+            </div>
+            <div style="margin-top:12px">
+              <div class="card-label">Recent Captures</div>
+              <div class="photo-grid" id="d-recent-grid" style="grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card-label">Processing Queue</div>
+            <div id="d-processing-queue" class="d-queue-scroll"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMERA PANEL -->
+      <div class="d-panel" id="d-panel-camera">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+          <div>
+            <div class="cam-area">
+              <video id="d-cam-video" autoplay muted playsinline style="display:none"></video>
+              <div class="cam-corner tl"></div><div class="cam-corner tr"></div>
+              <div class="cam-corner bl"></div><div class="cam-corner br"></div>
+              <div class="cam-scan" id="d-cam-scan"></div>
+              <div class="cam-ph" id="d-cam-ph">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <div style="font-size:13px">Camera band hai</div>
+              </div>
+              <div class="cam-status">
+                <div class="cam-dot" id="d-cam-dot"></div>
+                <span id="d-cam-status-text" style="font-size:10px">Offline</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-secondary" id="d-cam-start-btn" onclick="dStartCamera()">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+                Camera Shuru
+              </button>
+              <button class="btn btn-danger btn-sm" id="d-cam-stop-btn" onclick="dStopCamera()" style="display:none;width:auto">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                Band
+              </button>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-primary" id="d-cam-capture-btn" onclick="dCaptureFromCamera()" disabled style="margin-bottom:12px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+              Photo Lo (Space)
+            </button>
+            <div class="card">
+              <div class="card-label">Auto Assign To</div>
+              <select class="input" id="d-cam-assign-select"><option value="">— AI Auto Detect —</option></select>
+            </div>
+            <div style="margin-top:16px">
+              <div class="card-label">Recently Captured</div>
+              <div class="photo-grid" id="d-cam-recent" style="grid-template-columns:repeat(3,1fr)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PEOPLE PANEL -->
+      <div class="d-panel" id="d-panel-people">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <div class="stat-box"><div class="stat-val" id="d-stat-people">0</div><div class="stat-lbl">Registered People</div></div>
+          <div class="stat-box"><div class="stat-val" id="d-stat-photos">0</div><div class="stat-lbl">Total Photos</div></div>
+          <div class="stat-box"><div class="stat-val" id="d-stat-assigned">0</div><div class="stat-lbl">Assigned</div></div>
+          <div class="stat-box"><div class="stat-val" id="d-stat-unassigned">0</div><div class="stat-lbl">Unassigned</div></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-primary btn-sm" onclick="openNewPersonModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Person Register Karo
+          </button>
+        </div>
+        <div id="d-people-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+      </div>
+
+      <!-- GALLERY PANEL -->
+      <div class="d-panel" id="d-panel-gallery">
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+          <select class="input" id="d-gallery-filter" onchange="dRenderGallery()" style="max-width:220px">
+            <option value="all">Sab Photos</option>
+            <option value="unassigned">Unassigned</option>
+          </select>
+          <div style="font-size:12px;color:var(--muted);font-family:var(--fmono)" id="d-gallery-count">— photos</div>
+        </div>
+        <div id="d-gallery-container">
+          <div class="empty"><div class="empty-icon">📷</div><div class="empty-title">Koi photo nahi abhi</div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="d-panel" id="d-panel-settings">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+          <div>
+            <div class="card">
+              <div class="card-label">Event Info</div>
+              <div class="form-row"><label>Event / Studio Name</label><input class="input" id="d-s-event" placeholder="jaise: Shaadi 2025" oninput="saveSettings()"></div>
+              <div class="form-row"><label>Photographer Name</label><input class="input" id="d-s-photographer" placeholder="Aapka naam" oninput="saveSettings()"></div>
+            </div>
+            <div class="card" style="margin-top:12px">
+              <div class="card-label">AI Detection</div>
+              <div class="form-row"><label>Auto Detection Mode</label>
+                <select class="input" id="d-s-detect" onchange="saveSettings()">
+                  <option value="auto">Auto — Sab photos scan karo</option>
+                  <option value="manual">Manual — Sirf jab bolun tab</option>
+                </select>
+              </div>
+              <div style="background:rgba(123,97,255,0.06);border:1px solid rgba(123,97,255,0.15);border-radius:var(--rad-sm);padding:12px">
+                <div style="font-size:11px;color:var(--muted);line-height:1.6">
+                  <strong style="color:var(--accent3)">AI Face Detection</strong> kaam kaise karta hai:<br>
+                  • Photo upload hone par Claude AI ko bheja jata hai<br>
+                  • AI dekh ke batata hai registered person kaun hai<br>
+                  • Confidence score ke saath suggestion deta hai<br>
+                  • Aap approve ya change kar sakte hain
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-label">Data Management</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-secondary" onclick="exportData()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Data Export (JSON)
+                </button>
+                <button class="btn btn-danger" onclick="clearData()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Sab Data Delete Karo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODALS (shared) ══════════════ -->
+<div class="modal-wrap" id="modal-person">
+  <div class="modal" style="position:relative">
+    <div class="modal-handle"></div>
+    <div class="modal-title">PERSON <span style="color:var(--accent)">REGISTER</span></div>
+    <div class="modal-sub">Profile banao — unique QR code milega</div>
+    <div class="form-row"><label>Full Name *</label><input class="input" id="np-name" placeholder="Naam daalo..." onkeydown="if(event.key==='Enter')registerPerson()"></div>
+    <div class="form-row"><label>Tag / Role</label><input class="input" id="np-tag" placeholder="jaise: Dulhan, Dulha, Guest..."></div>
+    <div class="form-row">
+      <label>Profile Photo (optional)</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:52px;height:52px;border-radius:50%;border:2px dashed var(--border-hi);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;overflow:hidden;position:relative" onclick="document.getElementById('np-photo').click()" id="np-avatar-preview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--dim)" width="22" height="22"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="file" accept="image/*" id="np-photo" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewAvatar(this)">
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Tap karke photo upload karo</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="registerPerson()" style="margin-top:8px">
+      Register Karo & QR Generate Karo
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+    <button class="btn btn-secondary" onclick="closeModal('modal-person')" style="margin-top:8px">Cancel</button>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-qr">
+  <div class="modal" style="position:relative">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <img id="qr-avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" src="">
+      <div>
+        <div style="font-family:var(--fm);font-size:22px;letter-spacing:1px" id="qr-name"></div>
+        <div style="font-size:12px;color:var(--muted)" id="qr-tag"></div>
+      </div>
+    </div>
+    <div class="qr-wrap">
+      <div id="qr-code"></div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;font-family:var(--fmono)">Scan karo apni photos dekhne ke liye</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" style="flex:1" onclick="downloadQR()">QR Download</button>
+      <button class="btn btn-primary" style="flex:1" onclick="openPersonPhotos()">Photos Dekho</button>
+    </div>
+    <div id="qr-photo-strip" style="margin-top:12px"></div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-qr')" style="margin-top:8px">Close</button>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-assign">
+  <div class="modal" style="position:relative">
+    <div class="modal-handle"></div>
+    <div class="modal-title">PHOTO <span style="color:var(--accent)">ASSIGN</span></div>
+    <div class="modal-sub" id="assign-modal-sub">Kisko assign karna hai?</div>
+    <img id="assign-preview-img" style="width:100%;border-radius:var(--rad);object-fit:cover;max-height:200px;display:block;margin-bottom:14px">
+    <div id="assign-ai-result" style="display:none">
+      <div class="card-label">AI Suggestion</div>
+      <div id="assign-ai-content"></div>
+      <div class="divider"></div>
+    </div>
+    <div class="form-row">
+      <label>Manually Assign To</label>
+      <select class="input" id="assign-person-select"><option value="">— Person choose karo —</option></select>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="confirmAssign()">Assign Karo</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-assign')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="modal-person-photos">
+  <div class="modal" style="position:relative;max-height:90vh">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <img id="pp-avatar" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" src="">
+      <div>
+        <div style="font-family:var(--fm);font-size:20px;letter-spacing:1px" id="pp-name"></div>
+        <div style="font-size:11px;color:var(--muted)" id="pp-count"></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="openQRModal(currentPersonId)">QR</button>
+    </div>
+    <div class="photo-grid" id="pp-photos"></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn btn-secondary" onclick="document.getElementById('pp-add-input').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Aur Photos Add Karo
+      </button>
+      <input type="file" accept="image/*" multiple id="pp-add-input" style="display:none" onchange="addPhotosToCurrentPerson(this)">
+    </div>
+    <button class="btn btn-secondary" onclick="closeModal('modal-person-photos')" style="margin-top:8px">Close</button>
+  </div>
+</div>
+
+<div class="fs-viewer" id="fs-viewer" onclick="closeFS()">
+  <img id="fs-img" src="" alt="">
+  <div class="fs-actions" onclick="event.stopPropagation()">
+    <button class="fs-btn" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15)" onclick="sharePhoto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Share
+    </button>
+    <button class="fs-btn" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15)" onclick="downloadCurrentPhoto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Save
+    </button>
+    <button class="fs-btn" style="background:rgba(255,61,107,0.15);color:var(--accent2);border:1px solid rgba(255,61,107,0.3)" onclick="deleteCurrentPhoto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Delete
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let S = {
+  people: {},
+  photos: [],
+  settings: { eventName:'Photo Event', photographer:'', detect:'auto' }
+};
+let activePerson = null;
+let currentPersonId = null;
+let currentFsPhoto = null;
+let camStream = null;
+let dCamStream = null;
+let assignPhotoId = null;
+let assignAiResult = null;
+
+const isDesktop = () => window.innerWidth >= 768;
+
+// ══════════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════════
+function load(){
+  try{
+    const d = localStorage.getItem('pixsnap2');
+    if(d){ const p = JSON.parse(d); S.people=p.people||{}; S.photos=p.photos||[]; S.settings={...S.settings,...(p.settings||{})}; }
+  }catch(e){}
+  applySettings(); updateUI();
+  if(isDesktop()){ dRenderPeopleList(); dRenderGallery(); }
+  else { renderPeopleList(); renderGallery(); }
+}
+function save(){
+  try{ localStorage.setItem('pixsnap2', JSON.stringify(S)); }
+  catch(e){ toast('Storage bhar gaya! Data export karo','error'); }
+}
+
+// ══════════════════════════════════════════════
+//  MOBILE NAVIGATION
+// ══════════════════════════════════════════════
+function switchPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='people') renderPeopleList();
+  if(name==='gallery') renderGallery();
+}
+
+// ══════════════════════════════════════════════
+//  DESKTOP NAVIGATION
+// ══════════════════════════════════════════════
+const pageTitles = {
+  upload:'SMART <span>UPLOAD</span>',
+  camera:'LIVE <span>CAPTURE</span>',
+  people:'PEOPLE <span>& QR</span>',
+  gallery:'ALL <span>PHOTOS</span>',
+  settings:'<span>SETTINGS</span>'
+};
+
+function dSwitchPage(name){
+  document.querySelectorAll('.d-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('d-panel-'+name).classList.add('active');
+  document.getElementById('d-tab-'+name).classList.add('active');
+  document.getElementById('d-page-title').innerHTML = pageTitles[name]||name;
+  if(name==='people') dRenderPeopleList();
+  if(name==='gallery') dRenderGallery();
+}
+
+// ══════════════════════════════════════════════
+//  AI FACE DETECTION
+// ══════════════════════════════════════════════
+async function detectPersonInPhoto(photoBase64){
+  const people = Object.values(S.people);
+  if(people.length === 0) return null;
+  const peopleDesc = people.map(p => `- ID: ${p.id}, Name: "${p.name}", Tag: "${p.tag||'Guest'}", Photos: ${p.photoIds.length}`).join('\n');
+  const peopleWithAvatars = people.filter(p => p.avatar && p.avatar.startsWith('data:image'));
+  try {
+    const content = [];
+    if(peopleWithAvatars.length > 0){
+      content.push({ type:'text', text:`You are a face recognition assistant. Here are registered people with reference photos:` });
+      for(const person of peopleWithAvatars.slice(0,5)){
+        const b64 = person.avatar.split(',')[1];
+        const mtype = person.avatar.split(';')[0].split(':')[1];
+        content.push({ type:'image', source:{ type:'base64', media_type:mtype||'image/jpeg', data:b64 }});
+        content.push({ type:'text', text:`↑ Reference: ${person.name} (ID: ${person.id})`});
+      }
+    }
+    const b64main = photoBase64.split(',')[1];
+    const mtypeMain = photoBase64.split(';')[0].split(':')[1] || 'image/jpeg';
+    content.push({ type:'text', text:`\nAnalyze this NEW PHOTO. Registered people:\n${peopleDesc}\n\nReturn ONLY JSON (no markdown):\n{"personId":"<id or null>","confidence":"high|medium|low","reason":"<brief reason>","multipleFaces":false}\nIf no match: {"personId":null,"confidence":"low","reason":"No match","multipleFaces":false}` });
+    content.push({ type:'image', source:{ type:'base64', media_type:mtypeMain, data:b64main }});
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{role:'user',content}] })
+    });
+    const data = await resp.json();
+    const text = data.content?.map(c=>c.text||'').join('').trim();
+    if(!text) return null;
+    return JSON.parse(text.replace(/```json|```/g,'').trim());
+  } catch(e){ console.error('AI detection error:',e); return null; }
+}
+
+// ══════════════════════════════════════════════
+//  FILE UPLOAD
+// ══════════════════════════════════════════════
+async function handleFileUpload(input){
+  const files = Array.from(input.files);
+  if(!files.length) return;
+  input.value = '';
+  const desktop = isDesktop();
+  const queue = document.getElementById(desktop?'d-processing-queue':'processing-queue');
+  const autoDetect = S.settings.detect === 'auto';
+  const hasPeople = Object.keys(S.people).length > 0;
+
+  for(const file of files){
+    const photoId = 'photo_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    const dataUrl = await readFile(file);
+    const photo = { id:photoId, data:dataUrl, timestamp:new Date().toISOString(), personId:null, fileName:file.name };
+    S.photos.unshift(photo);
+    const qEl = createQueueItem(photoId, file.name, dataUrl);
+    queue.insertBefore(qEl, queue.firstChild);
+    if(autoDetect && hasPeople){
+      setQueueStatus(photoId,'processing','AI scan kar raha hai...');
+      setAiBar('processing','Analyzing: '+file.name, desktop);
+      try {
+        const result = await detectPersonInPhoto(dataUrl);
+        if(result && result.personId && S.people[result.personId]){
+          const person = S.people[result.personId];
+          photo.personId = result.personId;
+          photo.aiDetected = true;
+          photo.confidence = result.confidence;
+          if(!person.photoIds.includes(photoId)) person.photoIds.push(photoId);
+          setQueueStatus(photoId,'success',`✓ ${person.name} (${result.confidence})`,result.confidence);
+          setAiBar('success',`"${person.name}" assign ho gaya`, desktop);
+        } else if(result && result.multipleFaces){
+          setQueueStatus(photoId,'multi','Multiple faces — manually assign karo');
+          setAiBar('idle','Multiple faces — manual assignment', desktop);
+        } else {
+          setQueueStatus(photoId,'unknown','Match nahi mila — manually assign karo');
+          setAiBar('idle','AI Ready', desktop);
+        }
+      } catch(e){
+        setQueueStatus(photoId,'error','Detection fail');
+        setAiBar('error','Detection error', desktop);
+      }
+    } else if(!hasPeople){
+      setQueueStatus(photoId,'noperson','Pehle person register karo');
+      setAiBar('idle','Koi registered person nahi', desktop);
+    } else {
+      setQueueStatus(photoId,'manual','Manual assign — tap karo');
+    }
+    save(); updateUI();
+    await new Promise(r=>setTimeout(r,300));
+  }
+  renderRecentPhotos();
+  document.getElementById('recent-section')&&(document.getElementById('recent-section').style.display='block');
+}
+
+function readFile(file){
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(file); });
+}
+
+function createQueueItem(photoId, name, dataUrl){
+  const el = document.createElement('div');
+  el.id = 'queue-'+photoId;
+  el.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;margin-bottom:8px';
+  el.innerHTML = `<img src="${dataUrl}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px">${name}</div><div id="status-${photoId}" style="font-size:11px;color:var(--muted);font-family:var(--fmono)">Loading...</div><div class="progress-bar" id="prog-${photoId}"><div class="progress-fill" id="progfill-${photoId}"></div></div></div><button onclick="openAssignModal('${photoId}')" style="background:transparent;border:1px solid var(--border-hi);color:var(--muted);font-size:11px;padding:5px 9px;border-radius:6px;cursor:pointer;flex-shrink:0;font-family:var(--ff)">Assign</button>`;
+  return el;
+}
+
+function setQueueStatus(photoId, status, text){
+  const el = document.getElementById('status-'+photoId);
+  const prog = document.getElementById('progfill-'+photoId);
+  if(!el) return;
+  const colors = {processing:'var(--amber)',success:'var(--green)',unknown:'var(--muted)',error:'var(--accent2)',multi:'var(--accent)',noperson:'var(--dim)',manual:'var(--muted)'};
+  el.style.color = colors[status]||'var(--muted)';
+  el.textContent = text;
+  if(prog){ if(status==='processing') prog.style.width='60%'; else if(status==='success') prog.style.width='100%'; else prog.style.width='0'; }
+}
+
+function setAiBar(mode, text, desktop){
+  const bar = document.getElementById(desktop?'d-ai-bar':'ai-bar');
+  const txt = document.getElementById(desktop?'d-ai-text':'ai-text');
+  if(!bar||!txt) return;
+  bar.className = 'ai-bar'+(mode==='processing'?' processing':mode==='success'?' success':mode==='error'?' error':'');
+  const icons = {processing:'⟳ ',success:'✓ ',error:'✗ ',idle:'◈ '};
+  txt.innerHTML = `<strong>${(icons[mode]||'◈ ')}AI ${mode==='processing'?'Processing...':mode==='success'?'Detected!':mode==='error'?'Error':'Ready'}</strong> — ${text}`;
+}
+
+// ══════════════════════════════════════════════
+//  CAMERA (MOBILE)
+// ══════════════════════════════════════════════
+async function startCamera(){
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:1280,height:720}});
+    const v = document.getElementById('cam-video');
+    v.srcObject = camStream; v.style.display='block';
+    document.getElementById('cam-ph').style.display='none';
+    document.getElementById('cam-start-btn').style.display='none';
+    document.getElementById('cam-stop-btn').style.display='flex';
+    document.getElementById('cam-capture-btn').disabled=false;
+    document.getElementById('cam-dot').classList.add('live');
+    document.getElementById('cam-status-text').textContent='Live';
+    document.getElementById('cam-scan').classList.add('active');
+    toast('Camera shuru ho gaya','success');
+  }catch(e){ toast('Camera access nahi mila: '+e.message,'error'); }
+}
+function stopCamera(){
+  if(camStream) camStream.getTracks().forEach(t=>t.stop());
+  camStream=null;
+  document.getElementById('cam-video').style.display='none';
+  document.getElementById('cam-ph').style.display='flex';
+  document.getElementById('cam-start-btn').style.display='flex';
+  document.getElementById('cam-stop-btn').style.display='none';
+  document.getElementById('cam-capture-btn').disabled=true;
+  document.getElementById('cam-dot').classList.remove('live');
+  document.getElementById('cam-status-text').textContent='Offline';
+  document.getElementById('cam-scan').classList.remove('active');
+}
+async function captureFromCamera(){
+  if(!camStream) return;
+  const v = document.getElementById('cam-video');
+  const c = document.createElement('canvas');
+  c.width=v.videoWidth||1280; c.height=v.videoHeight||720;
+  c.getContext('2d').drawImage(v,0,0);
+  const flash = document.getElementById('flash');
+  flash.classList.add('go'); setTimeout(()=>flash.classList.remove('go'),250);
+  const dataUrl = c.toDataURL('image/jpeg',0.85);
+  const photoId = 'photo_'+Date.now();
+  const photo = {id:photoId,data:dataUrl,timestamp:new Date().toISOString(),personId:null};
+  const selVal = document.getElementById('cam-assign-select').value;
+  if(selVal && S.people[selVal]){
+    photo.personId=selVal; S.people[selVal].photoIds.push(photoId);
+    toast(`Photo li — ${S.people[selVal].name} ko assign`,'success');
+    S.photos.unshift(photo); save(); updateUI();
+  } else {
+    S.photos.unshift(photo); save(); updateUI();
+    toast('Photo li — AI detect kar raha hai...','info');
+    if(Object.keys(S.people).length>0){
+      const result = await detectPersonInPhoto(dataUrl);
+      if(result&&result.personId&&S.people[result.personId]){
+        const person=S.people[result.personId];
+        photo.personId=result.personId; photo.aiDetected=true; photo.confidence=result.confidence;
+        person.photoIds.push(photoId);
+        toast(`${person.name} detect kiya (${result.confidence})!`,'success');
+        save(); updateUI(); return;
+      }
+    }
+    toast('Photo li — manually assign karo','info');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  CAMERA (DESKTOP)
+// ══════════════════════════════════════════════
+async function dStartCamera(){
+  try{
+    dCamStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1280,height:720}});
+    const v = document.getElementById('d-cam-video');
+    v.srcObject=dCamStream; v.style.display='block';
+    document.getElementById('d-cam-ph').style.display='none';
+    document.getElementById('d-cam-start-btn').style.display='none';
+    document.getElementById('d-cam-stop-btn').style.display='flex';
+    document.getElementById('d-cam-capture-btn').disabled=false;
+    document.getElementById('d-cam-dot').classList.add('live');
+    document.getElementById('d-cam-status-text').textContent='Live';
+    document.getElementById('d-cam-scan').classList.add('active');
+    toast('Camera shuru ho gaya','success');
+  }catch(e){ toast('Camera access nahi mila: '+e.message,'error'); }
+}
+function dStopCamera(){
+  if(dCamStream) dCamStream.getTracks().forEach(t=>t.stop());
+  dCamStream=null;
+  document.getElementById('d-cam-video').style.display='none';
+  document.getElementById('d-cam-ph').style.display='flex';
+  document.getElementById('d-cam-start-btn').style.display='flex';
+  document.getElementById('d-cam-stop-btn').style.display='none';
+  document.getElementById('d-cam-capture-btn').disabled=true;
+  document.getElementById('d-cam-dot').classList.remove('live');
+  document.getElementById('d-cam-status-text').textContent='Offline';
+  document.getElementById('d-cam-scan').classList.remove('active');
+}
+async function dCaptureFromCamera(){
+  if(!dCamStream) return;
+  const v = document.getElementById('d-cam-video');
+  const c = document.createElement('canvas');
+  c.width=v.videoWidth||1280; c.height=v.videoHeight||720;
+  c.getContext('2d').drawImage(v,0,0);
+  const flash = document.getElementById('flash');
+  flash.classList.add('go'); setTimeout(()=>flash.classList.remove('go'),250);
+  const dataUrl = c.toDataURL('image/jpeg',0.85);
+  const photoId = 'photo_'+Date.now();
+  const photo = {id:photoId,data:dataUrl,timestamp:new Date().toISOString(),personId:null};
+  const selVal = document.getElementById('d-cam-assign-select').value;
+  if(selVal && S.people[selVal]){
+    photo.personId=selVal; S.people[selVal].photoIds.push(photoId);
+    toast(`Photo li — ${S.people[selVal].name} ko assign`,'success');
+    S.photos.unshift(photo); save(); updateUI();
+  } else {
+    S.photos.unshift(photo); save(); updateUI();
+    if(Object.keys(S.people).length>0){
+      const result = await detectPersonInPhoto(dataUrl);
+      if(result&&result.personId&&S.people[result.personId]){
+        const person=S.people[result.personId];
+        photo.personId=result.personId; photo.aiDetected=true; photo.confidence=result.confidence;
+        person.photoIds.push(photoId);
+        toast(`${person.name} detect kiya!`,'success');
+        save(); updateUI(); return;
+      }
+    }
+    toast('Photo li — manually assign karo','info');
+  }
+  renderRecentPhotos();
+  dRenderGallery();
+}
+
+// ══════════════════════════════════════════════
+//  ASSIGN MODAL
+// ══════════════════════════════════════════════
+async function openAssignModal(photoId){
+  assignPhotoId=photoId; assignAiResult=null;
+  const photo = S.photos.find(p=>p.id===photoId);
+  if(!photo) return;
+  document.getElementById('assign-preview-img').src=photo.data;
+  document.getElementById('assign-modal-sub').textContent = photo.personId
+    ? `Currently: ${S.people[photo.personId]?.name||'Unknown'} — change karo?`
+    : 'Kisko assign karna hai ye photo?';
+  const sel = document.getElementById('assign-person-select');
+  sel.innerHTML='<option value="">— Person choose karo —</option>';
+  Object.values(S.people).forEach(p=>{ sel.innerHTML+=`<option value="${p.id}" ${photo.personId===p.id?'selected':''}>${p.name}${p.tag?' · '+p.tag:''}</option>`; });
+  document.getElementById('assign-ai-result').style.display='none';
+  openModal('modal-assign');
+  if(!photo.aiDetected && Object.keys(S.people).length>0){
+    document.getElementById('assign-ai-result').style.display='block';
+    document.getElementById('assign-ai-content').innerHTML=`<div class="ai-bar processing" style="margin-bottom:10px"><div class="ai-dot"></div><div class="ai-text">AI detect kar raha hai...</div></div>`;
+    const result = await detectPersonInPhoto(photo.data);
+    assignAiResult=result;
+    if(result&&result.personId&&S.people[result.personId]){
+      const person=S.people[result.personId];
+      const confClass=result.confidence==='high'?'conf-high':result.confidence==='medium'?'conf-mid':'conf-low';
+      document.getElementById('assign-ai-content').innerHTML=`<div class="result-card"><img src="${person.avatar||getAvatar(person.name)}" class="result-photo"><div class="result-info"><div class="result-name">${person.name}</div><div class="result-meta">${person.tag||'Guest'} · ${person.photoIds.length} photos</div><div style="margin-top:5px"><span class="conf-chip ${confClass}">${result.confidence} confidence</span></div><div style="font-size:10px;color:var(--muted);margin-top:3px">${result.reason||''}</div></div><button onclick="autoAcceptAI()" style="background:var(--green);color:#000;border:none;border-radius:6px;padding:7px 10px;cursor:pointer;font-size:11px;font-weight:600;flex-shrink:0">Accept</button></div>`;
+      sel.value=result.personId;
+    } else {
+      document.getElementById('assign-ai-content').innerHTML=`<div class="ai-bar error" style="margin-bottom:10px"><div class="ai-dot"></div><div class="ai-text">Koi match nahi mila</div></div>`;
+    }
+  }
+}
+function autoAcceptAI(){ if(!assignAiResult||!assignAiResult.personId) return; document.getElementById('assign-person-select').value=assignAiResult.personId; confirmAssign(); }
+function confirmAssign(){
+  const personId=document.getElementById('assign-person-select').value;
+  if(!personId){ toast('Koi person select nahi kiya','error'); return; }
+  const photo=S.photos.find(p=>p.id===assignPhotoId);
+  if(!photo) return;
+  if(photo.personId&&S.people[photo.personId]) S.people[photo.personId].photoIds=S.people[photo.personId].photoIds.filter(id=>id!==assignPhotoId);
+  photo.personId=personId;
+  if(S.people[personId]&&!S.people[personId].photoIds.includes(assignPhotoId)) S.people[personId].photoIds.push(assignPhotoId);
+  save(); updateUI(); closeModal('modal-assign');
+  renderRecentPhotos(); renderGallery(); dRenderGallery();
+  toast(`${S.people[personId].name} ko assign kar diya!`,'success');
+  setQueueStatus(assignPhotoId,'success',`✓ ${S.people[personId].name} ko assign`);
+}
+
+// ══════════════════════════════════════════════
+//  PERSON MANAGEMENT
+// ══════════════════════════════════════════════
+function openNewPersonModal(){
+  document.getElementById('np-name').value='';
+  document.getElementById('np-tag').value='';
+  document.getElementById('np-photo').value='';
+  const preview=document.getElementById('np-avatar-preview');
+  preview.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="var(--dim)" width="22" height="22"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4"/></svg><input type="file" accept="image/*" id="np-photo" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewAvatar(this)">`;
+  openModal('modal-person');
+  setTimeout(()=>document.getElementById('np-name').focus(),300);
+}
+function previewAvatar(input){
+  if(!input.files[0]) return;
+  const r=new FileReader();
+  r.onload=e=>{ const preview=document.getElementById('np-avatar-preview'); preview.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><input type="file" accept="image/*" id="np-photo" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewAvatar(this)">`; };
+  r.readAsDataURL(input.files[0]);
+}
+function registerPerson(){
+  const name=document.getElementById('np-name').value.trim();
+  if(!name){ toast('Naam daalna zaroori hai','error'); return; }
+  const personId='person_'+Date.now();
+  const preview=document.getElementById('np-avatar-preview');
+  const img=preview.querySelector('img');
+  S.people[personId]={ id:personId, name, tag:document.getElementById('np-tag').value.trim(), avatar:img?img.src:null, photoIds:[], createdAt:new Date().toISOString() };
+  save(); updateUI(); closeModal('modal-person');
+  toast(`${name} register ho gaya!`,'success');
+  updateCamSelects();
+  setTimeout(()=>openQRModal(personId),200);
+}
+
+// ══════════════════════════════════════════════
+//  QR CODE
+// ══════════════════════════════════════════════
+function openQRModal(personId){
+  activePerson=personId;
+  const person=S.people[personId];
+  if(!person) return;
+  document.getElementById('qr-name').textContent=person.name;
+  document.getElementById('qr-tag').textContent=person.tag||'';
+  document.getElementById('qr-avatar').src=person.avatar||getAvatar(person.name);
+  const url=generateQRUrl(personId);
+  const qrEl=document.getElementById('qr-code');
+  qrEl.innerHTML='';
+  new QRCode(qrEl,{text:url,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  const photos=person.photoIds.map(id=>S.photos.find(p=>p.id===id)).filter(Boolean).slice(0,8);
+  const strip=document.getElementById('qr-photo-strip');
+  strip.innerHTML = photos.length>0
+    ? `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--fmono)">${photos.length} PHOTOS ASSIGNED</div><div class="preview-strip">${photos.map(p=>`<div class="preview-chip"><img src="${p.data}"></div>`).join('')}</div>`
+    : `<div style="font-size:11px;color:var(--dim);text-align:center;padding:8px">Koi photo assign nahi abhi</div>`;
+  openModal('modal-qr');
+}
+function generateQRUrl(personId){
+  const base=window.location.href.split('?')[0];
+  return `${base}?view=${personId}&event=${encodeURIComponent(S.settings.eventName)}`;
+}
+function downloadQR(){
+  const canvas=document.querySelector('#qr-code canvas');
+  if(!canvas) return;
+  const a=document.createElement('a'); a.download=`QR_${S.people[activePerson]?.name||'photo'}.png`; a.href=canvas.toDataURL(); a.click();
+  toast('QR download ho gaya!','success');
+}
+function openPersonPhotos(){ closeModal('modal-qr'); setTimeout(()=>openPersonPhotosModal(activePerson),150); }
+function openPersonPhotosModal(personId){
+  currentPersonId=personId;
+  const person=S.people[personId];
+  if(!person) return;
+  document.getElementById('pp-name').textContent=person.name;
+  document.getElementById('pp-avatar').src=person.avatar||getAvatar(person.name);
+  const photos=person.photoIds.map(id=>S.photos.find(p=>p.id===id)).filter(Boolean);
+  document.getElementById('pp-count').textContent=`${photos.length} photo${photos.length!==1?'s':''}`;
+  const grid=document.getElementById('pp-photos');
+  grid.innerHTML = photos.length===0
+    ? `<div style="grid-column:1/-1;text-align:center;color:var(--dim);padding:20px;font-size:12px">Abhi koi photo nahi</div>`
+    : photos.map(p=>`<div class="photo-thumb" onclick="openFS('${p.id}')"><img src="${p.data}" loading="lazy"><div class="badge">${new Date(p.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');
+  openModal('modal-person-photos');
+}
+async function addPhotosToCurrentPerson(input){
+  if(!currentPersonId||!input.files.length) return;
+  const person=S.people[currentPersonId];
+  if(!person) return;
+  for(const file of Array.from(input.files)){
+    const dataUrl=await readFile(file);
+    const photoId='photo_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+    S.photos.unshift({id:photoId,data:dataUrl,timestamp:new Date().toISOString(),personId:currentPersonId});
+    person.photoIds.push(photoId);
+  }
+  save(); updateUI(); openPersonPhotosModal(currentPersonId);
+  toast(`${input.files.length} photo(s) add ho gaye!`,'success');
+  input.value='';
+}
+
+// ══════════════════════════════════════════════
+//  RENDER FUNCTIONS (MOBILE)
+// ══════════════════════════════════════════════
+function renderPeopleList(){
+  const container=document.getElementById('people-list');
+  const people=Object.values(S.people);
+  if(people.length===0){ container.innerHTML=`<div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Koi registered nahi hai</div><div class="empty-hint">Upar "Add" button dabao</div></div>`; return; }
+  container.innerHTML=people.map(p=>{
+    const count=p.photoIds.filter(id=>S.photos.find(ph=>ph.id===id)).length;
+    return `<div class="person-card" onclick="openQRModal('${p.id}')"><img class="person-avatar" src="${p.avatar||getAvatar(p.name)}" onerror="this.src='${getAvatar(p.name)}'"><div class="person-info"><div class="person-name">${p.name}</div><div class="person-meta">${p.tag||'Guest'} · ${count} photos</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag tag-cyan">${count} 📸</span><button onclick="event.stopPropagation();openPersonPhotosModal('${p.id}')" style="background:transparent;border:1px solid var(--border-hi);color:var(--muted);padding:5px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-family:var(--ff)">Photos</button></div></div>`;
+  }).join('');
+}
+
+function renderRecentPhotos(){
+  const grid=document.getElementById('recent-grid');
+  const dGrid=document.getElementById('d-recent-grid');
+  const recent=S.photos.slice(0,12);
+  const html=recent.length===0?'':recent.map(p=>{
+    const person=p.personId?S.people[p.personId]:null;
+    return `<div class="photo-thumb"><img src="${p.data}" loading="lazy" onclick="openFS('${p.id}')"><div class="badge ${person?'':'unassigned'}">${person?person.name:'Unassigned'}</div>${p.aiDetected?`<div style="position:absolute;top:4px;left:4px;background:rgba(123,97,255,0.8);border-radius:4px;padding:1px 4px;font-size:8px;font-family:var(--fmono);color:#fff">AI</div>`:''}</div>`;
+  }).join('');
+  if(grid) grid.innerHTML=html;
+  if(dGrid) dGrid.innerHTML=html;
+}
+
+function renderGallery(){
+  const container=document.getElementById('gallery-container');
+  const filterEl=document.getElementById('gallery-filter');
+  if(!filterEl||!container) return;
+  const filter=filterEl.value;
+  const curr=filterEl.value;
+  filterEl.innerHTML='<option value="all">Sab Photos</option><option value="unassigned">Unassigned</option>';
+  Object.values(S.people).forEach(p=>{ filterEl.innerHTML+=`<option value="${p.id}" ${curr===p.id?'selected':''}>${p.name}</option>`; });
+  if(curr) filterEl.value=curr;
+  let photos=S.photos;
+  if(filter==='unassigned') photos=photos.filter(p=>!p.personId);
+  else if(filter!=='all') photos=photos.filter(p=>p.personId===filter);
+  if(photos.length===0){ container.innerHTML=`<div class="empty"><div class="empty-icon">📷</div><div class="empty-title">Koi photo nahi</div></div>`; return; }
+  container.innerHTML=`<div class="photo-grid">${photos.map(p=>{
+    const person=p.personId?S.people[p.personId]:null;
+    return `<div class="photo-thumb" onclick="openFS('${p.id}')"><img src="${p.data}" loading="lazy"><div class="badge ${person?'':'unassigned'}">${person?person.name:'Unassigned'}</div>${p.aiDetected?`<div style="position:absolute;top:4px;left:4px;background:rgba(123,97,255,0.85);border-radius:4px;padding:1px 4px;font-size:8px;font-family:var(--fmono);color:#fff">AI</div>`:''}</div>`;
+  }).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════
+//  RENDER FUNCTIONS (DESKTOP)
+// ══════════════════════════════════════════════
+function dRenderPeopleList(){
+  const container=document.getElementById('d-people-list');
+  if(!container) return;
+  const people=Object.values(S.people);
+  if(people.length===0){ container.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👤</div><div class="empty-title">Koi registered nahi hai</div><div class="empty-hint">"New Person Register Karo" dabao</div></div>`; return; }
+  container.innerHTML=people.map(p=>{
+    const count=p.photoIds.filter(id=>S.photos.find(ph=>ph.id===id)).length;
+    return `<div class="person-card" onclick="openQRModal('${p.id}')"><img class="person-avatar" src="${p.avatar||getAvatar(p.name)}" onerror="this.src='${getAvatar(p.name)}'"><div class="person-info"><div class="person-name">${p.name}</div><div class="person-meta">${p.tag||'Guest'} · ${count} photos</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag tag-cyan">${count} 📸</span><button onclick="event.stopPropagation();openPersonPhotosModal('${p.id}')" style="background:transparent;border:1px solid var(--border-hi);color:var(--muted);padding:5px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-family:var(--ff)">Photos</button></div></div>`;
+  }).join('');
+}
+
+function dRenderGallery(){
+  const container=document.getElementById('d-gallery-container');
+  const filterEl=document.getElementById('d-gallery-filter');
+  const countEl=document.getElementById('d-gallery-count');
+  if(!container||!filterEl) return;
+  const filter=filterEl.value;
+  const curr=filterEl.value;
+  filterEl.innerHTML='<option value="all">Sab Photos</option><option value="unassigned">Unassigned</option>';
+  Object.values(S.people).forEach(p=>{ filterEl.innerHTML+=`<option value="${p.id}" ${curr===p.id?'selected':''}>${p.name}</option>`; });
+  if(curr) filterEl.value=curr;
+  let photos=S.photos;
+  if(filter==='unassigned') photos=photos.filter(p=>!p.personId);
+  else if(filter!=='all') photos=photos.filter(p=>p.personId===filter);
+  if(countEl) countEl.textContent=`${photos.length} photos`;
+  if(photos.length===0){ container.innerHTML=`<div class="empty"><div class="empty-icon">📷</div><div class="empty-title">Koi photo nahi</div></div>`; return; }
+  container.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">${photos.map(p=>{
+    const person=p.personId?S.people[p.personId]:null;
+    return `<div class="photo-thumb" onclick="openFS('${p.id}')"><img src="${p.data}" loading="lazy"><div class="badge ${person?'':'unassigned'}">${person?person.name:'Unassigned'}</div>${p.aiDetected?`<div style="position:absolute;top:4px;left:4px;background:rgba(123,97,255,0.85);border-radius:4px;padding:1px 4px;font-size:8px;font-family:var(--fmono);color:#fff">AI</div>`:''}</div>`;
+  }).join('')}</div>`;
+}
+
+function updateUI(){
+  const pc=Object.keys(S.people).length;
+  const phc=S.photos.length;
+  const assigned=S.photos.filter(p=>p.personId).length;
+  const unassigned=phc-assigned;
+  // Mobile
+  const nc=document.getElementById('nav-counter'); if(nc) nc.textContent=phc+' PHOTOS';
+  const sp=document.getElementById('stat-people'); if(sp) sp.textContent=pc;
+  const sph=document.getElementById('stat-photos'); if(sph) sph.textContent=phc;
+  const pb=document.getElementById('people-badge');
+  if(pb){ if(pc>0){pb.style.display='flex';pb.textContent=pc;}else pb.style.display='none'; }
+  // Desktop
+  const dnc=document.getElementById('d-nav-counter'); if(dnc) dnc.textContent=phc+' PHOTOS';
+  const dsp=document.getElementById('d-stat-people'); if(dsp) dsp.textContent=pc;
+  const dsph=document.getElementById('d-stat-photos'); if(dsph) dsph.textContent=phc;
+  const dsa=document.getElementById('d-stat-assigned'); if(dsa) dsa.textContent=assigned;
+  const dsu=document.getElementById('d-stat-unassigned'); if(dsu) dsu.textContent=unassigned;
+  const dpb=document.getElementById('d-people-badge');
+  if(dpb){ if(pc>0){dpb.style.display='flex';dpb.textContent=pc;}else dpb.style.display='none'; }
+  updateCamSelects();
+}
+
+function updateCamSelects(){
+  ['cam-assign-select','d-cam-assign-select'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    const curr=sel.value;
+    sel.innerHTML='<option value="">— AI Auto Detect —</option>';
+    Object.values(S.people).forEach(p=>{ sel.innerHTML+=`<option value="${p.id}" ${curr===p.id?'selected':''}>${p.name}${p.tag?' · '+p.tag:''}</option>`; });
+  });
+}
+
+// ══════════════════════════════════════════════
+//  FULLSCREEN
+// ══════════════════════════════════════════════
+function openFS(photoId){
+  const photo=S.photos.find(p=>p.id===photoId);
+  if(!photo) return;
+  currentFsPhoto=photoId;
+  document.getElementById('fs-img').src=photo.data;
+  document.getElementById('fs-viewer').classList.add('open');
+}
+function closeFS(){ document.getElementById('fs-viewer').classList.remove('open'); }
+function sharePhoto(){
+  const photo=S.photos.find(p=>p.id===currentFsPhoto);
+  if(!photo) return;
+  if(navigator.share){ fetch(photo.data).then(r=>r.blob()).then(blob=>{ const file=new File([blob],'photo.jpg',{type:'image/jpeg'}); navigator.share({files:[file],title:'PixSnap Photo'}).catch(()=>{}); }); }
+  else toast('Share support nahi iss browser mein','error');
+}
+function downloadCurrentPhoto(){
+  const photo=S.photos.find(p=>p.id===currentFsPhoto);
+  if(!photo) return;
+  const a=document.createElement('a'); a.download=`pixsnap_${Date.now()}.jpg`; a.href=photo.data; a.click();
+}
+function deleteCurrentPhoto(){
+  if(!confirm('Ye photo delete karo?')) return;
+  const photo=S.photos.find(p=>p.id===currentFsPhoto);
+  if(!photo) return;
+  if(photo.personId&&S.people[photo.personId]) S.people[photo.personId].photoIds=S.people[photo.personId].photoIds.filter(id=>id!==currentFsPhoto);
+  S.photos=S.photos.filter(p=>p.id!==currentFsPhoto);
+  save(); updateUI(); renderRecentPhotos(); renderGallery(); dRenderGallery(); closeFS();
+  toast('Photo delete ho gaya','info');
+}
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+function applySettings(){
+  ['s-event','d-s-event'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=S.settings.eventName; });
+  ['s-photographer','d-s-photographer'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=S.settings.photographer; });
+  ['s-detect','d-s-detect'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=S.settings.detect; });
+}
+function saveSettings(){
+  S.settings.eventName = (document.getElementById('d-s-event')||document.getElementById('s-event')).value;
+  S.settings.photographer = (document.getElementById('d-s-photographer')||document.getElementById('s-photographer')).value;
+  S.settings.detect = (document.getElementById('d-s-detect')||document.getElementById('s-detect')).value;
+  // Sync all settings inputs
+  applySettings(); save();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`pixsnap-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  toast('Data export ho gaya!','success');
+}
+function exportAllPhotos(){ toast('Gallery export — coming soon!','info'); }
+function clearData(){
+  if(!confirm('Sab kuch delete karo? Ye wapis nahi aayega.')) return;
+  S.people={}; S.photos=[];
+  save(); updateUI(); renderPeopleList(); renderGallery(); dRenderPeopleList(); dRenderGallery();
+  document.getElementById('processing-queue').innerHTML='';
+  document.getElementById('d-processing-queue').innerHTML='';
+  const rs=document.getElementById('recent-section'); if(rs) rs.style.display='none';
+  toast('Sab data delete ho gaya','info');
+}
+
+// ══════════════════════════════════════════════
+//  MODAL HELPERS
+// ══════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-wrap').forEach(el=>{
+  el.addEventListener('click',e=>{ if(e.target===el) el.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════
+//  AVATAR HELPER
+// ══════════════════════════════════════════════
+function getAvatar(name){
+  const init=name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const cols=['#00E5FF','#7B61FF','#FF3D6B','#00FF88','#FFB800'];
+  const c=cols[name.charCodeAt(0)%cols.length];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44"><circle cx="22" cy="22" r="22" fill="${c}22" stroke="${c}" stroke-width="1.5"/><text x="22" y="27" text-anchor="middle" fill="${c}" font-family="DM Sans,sans-serif" font-weight="600" font-size="14">${init}</text></svg>`;
+  return 'data:image/svg+xml;base64,'+btoa(svg);
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastT;
+function toast(msg,type='info'){
+  const el=document.getElementById('toast');
+  const icons={success:'✓',error:'✗',info:'ℹ'};
+  el.innerHTML=`${icons[type]||'ℹ'} ${msg}`;
+  el.className=`toast ${type} show`;
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════════════
+//  QR VIEWER MODE
+// ══════════════════════════════════════════════
+function checkViewerMode(){
+  const params=new URLSearchParams(window.location.search);
+  const viewId=params.get('view');
+  if(!viewId) return;
+  document.querySelector('.nav')&&(document.querySelector('.nav').style.display='none');
+  document.querySelector('.tabs')&&(document.querySelector('.tabs').style.display='none');
+  document.querySelector('.desktop-layout')&&(document.querySelector('.desktop-layout').style.display='none');
+  const person=S.people[viewId];
+  const pages=document.querySelector('.pages');
+  if(!person){
+    pages.style.display='block';
+    pages.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:32px;text-align:center"><div style="font-family:var(--fm);font-size:36px;color:var(--accent)">PIXSNAP PRO</div><div style="color:var(--muted)">Is QR ke liye koi photos nahi mili</div></div>`;
+    return;
+  }
+  const photos=person.photoIds.map(id=>S.photos.find(p=>p.id===id)).filter(Boolean);
+  const eventName=decodeURIComponent(params.get('event')||S.settings.eventName);
+  pages.style.display='block';
+  pages.innerHTML=`<div style="overflow-y:auto;height:100%"><div style="padding:24px;text-align:center"><img src="${person.avatar||getAvatar(person.name)}" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--accent);object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"><div style="font-family:var(--fm);font-size:32px;letter-spacing:2px;margin-bottom:4px">${person.name}</div><div style="font-size:13px;color:var(--muted);margin-bottom:4px">${person.tag||''}</div><div style="font-size:11px;color:var(--dim);font-family:var(--fmono)">${eventName}</div><div style="margin-top:8px" class="tag tag-cyan">${photos.length} PHOTOS</div></div><div class="photo-grid" style="padding:0 12px 80px">${photos.length===0?`<div style="grid-column:1/-1;text-align:center;color:var(--dim);padding:40px">Abhi koi photo nahi</div>`:photos.map(p=>`<div class="photo-thumb" onclick="document.getElementById('fs-viewer').classList.add('open');document.getElementById('fs-img').src='${p.data}'"><img src="${p.data}" loading="lazy"></div>`).join('')}</div><div style="text-align:center;padding:16px;font-size:11px;color:var(--dim);font-family:var(--fmono)">PIXSNAP PRO${S.settings.photographer?' · '+S.settings.photographer:''}</div></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-wrap').forEach(el=>el.classList.remove('open'));
+    closeFS();
+  }
+  if(e.key===' '&&!document.querySelector('.modal-wrap.open')){
+    e.preventDefault();
+    if(isDesktop()&&dCamStream) dCaptureFromCamera();
+    else if(!isDesktop()&&camStream) captureFromCamera();
+  }
+});
+
+// ══════════════════════════════════════════════
+//  DRAG & DROP (Desktop)
+// ══════════════════════════════════════════════
+['d-upload-zone','upload-zone'].forEach(id=>{
+  const zone=document.getElementById(id);
+  if(!zone) return;
+  zone.addEventListener('dragover',e=>{ e.preventDefault(); zone.style.borderColor='var(--accent)'; zone.style.background='rgba(0,229,255,0.05)'; });
+  zone.addEventListener('dragleave',()=>{ zone.style.borderColor=''; zone.style.background=''; });
+  zone.addEventListener('drop',e=>{
+    e.preventDefault(); zone.style.borderColor=''; zone.style.background='';
+    const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+    if(!files.length) return;
+    const input=document.createElement('input'); input.type='file'; input.multiple=true;
+    const dt=new DataTransfer(); files.forEach(f=>dt.items.add(f)); input.files=dt.files;
+    handleFileUpload(input);
+  });
+});
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+load();
+checkViewerMode();
+toast('PixSnap Pro ready! Photos upload karo ya people register karo','info');
+</script>
+</body>
+</html>
